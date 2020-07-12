@@ -1,0 +1,122 @@
+@color1: #2B7CF6;
+.m-outter-home-container{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.m-header-container{
+    flex: 0 0 76px;
+}
+.m-home-container{
+    flex: 1;
+    display: flex;
+    overflow-x: hidden;
+}
+.m-menu-container{
+    flex: 0 0 150px;
+    margin-right: 10px;
+    background-color: #fff;
+    min-height: 100%;
+}
+.m-content-container{
+    flex: 1;
+    background-color: #fff;
+    overflow-x:hidden;
+    max-width: 100%;
+    flex-direction: column;
+    display: flex;
+}
+.m-container {
+    // padding: 40px 30px;
+    flex: 1;
+    max-width: 100%;
+    overflow-x:hidden;
+    overflow:auto;
+    background-color: #ffffff;
+}
+.m-main-container{
+    padding: 40px 30px;
+    max-width:100%;
+    overflow:auto;
+}
+.page-title{
+    height: 60px;
+    padding: 20px;
+    font-size: 16px;
+    .title{
+      border-left: 2px solid #2B7CF6;
+    }
+    p{
+      margin-left: 10px;
+    }
+  }
+  .button-span{
+      display: inline-block;
+      margin-left: 10px;
+      &:hover{
+          cursor: pointer;
+          color: #2B7CF6;
+      }
+  }
+  .page-box{
+      text-align: center;
+      margin-top:15px;
+  }
+  .add-btn{
+      text-align: right;
+      padding: 10px 20px;
+  }
+
+  .m-page-wrp{
+    padding: 20px;
+    .m-page{
+      padding: 20px 0;
+      text-align: center;
+    }
+    .m-filter-wrapper{
+      font-size: 14px;
+      margin-right: 10px;
+      display: flex;
+      line-height: 32px;
+      // color: #2B7CF6;//todo
+    }
+    .col-tile {
+      display: flex;
+      width: 30%;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      .lable{
+        display: inline-block;
+        width: 90px;
+      }
+      // div{
+      //   width: 100%
+      // }
+      .ivu-cascader{
+        width: 100%
+  
+      }
+    }
+  }
+  .basic{
+    align-items: center;
+    padding:10px 5px;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .basic-item1{
+      width: 50%;
+  }
+  .basic-item2{
+      width: 50%;
+  }
+  @media screen and (max-width:900px) {
+    .basic-item1 {
+        width: 100%;
+    }
+    .basic-item2 {
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+

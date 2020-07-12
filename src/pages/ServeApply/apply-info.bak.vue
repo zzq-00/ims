@@ -1,0 +1,473 @@
+<template>
+  <a-card :bordered="false">
+    <a-card>
+      <a-divider orientation="left">
+        <a-icon type="file-search" /> 服务申请查询</a-divider>
+      <a-form :form="filterForm" :labelCol="filterFormLayout.labelCol" :wrapperCol="filterFormLayout.wrapperCol">
+        <a-row :gutter="16">
+          <a-col :span="6">
+            <a-form-item label="服务卡号码">
+              <HealthCardSelect ref="healthCardSelect" :allowClear="true" @change="searchHandle" v-decorator="['docDefId', { initialValue: '' }]" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item label="产品名称">
+              <a-input placeholder="" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item label="当前状态">
+              <DicSelect dicType="YES_NO" :allowClear="true" @change="searchHandle" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item label="申请方式">
+              <DicSelect dicType="YES_NO" :allowClear="true" @change="searchHandle" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item label="就诊人姓名">
+              <a-input placeholder="" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item label="就诊人证件类型">
+              <DicSelect dicType="YES_NO" :allowClear="true" @change="searchHandle" v-decorator="['isVirtual', { initialValue: '' }]" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item label="就诊人证件号码">
+              <a-input placeholder="" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item label="就诊人手机号码">
+              <a-input placeholder="" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item label="服务申请起期">
+              <a-date-picker @change="onChange" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item label="服务申请止期">
+              <a-date-picker @change="onChange" />
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="16">
+          <a-col :span="24" style="margin:10px 0 0 0;text-align:right">
+            <a-button type="" class="editable-add-btn" style="float:right;margin-right:10px;">重置</a-button>
+            <a-button type="" class="editable-add-btn" style="float:right;margin-right:10px;">查询</a-button>
+            <a-button type="" class="editable-add-btn" style="float:right;margin-right:10px;">我的任务查询</a-button>
+            <a-button type="primary" class="editable-add-btn" style="float:right;margin-right:10px;">提交新的申请</a-button>
+          </a-col>
+        </a-row>
+      </a-form>
+    </a-card>
+    <a-card style="margin-top:24px;">
+      <span href="#" slot="title" style="float:left;">
+        <a-icon type="search" /> 查询显示</span>
+      <a href="#" slot="extra">
+        <a-icon :type="iconType" @click="swithTableShow" />
+      </a>
+      <a-table v-show="showTable" :scroll="{ x: 'max-content'}" :bordered="false" :pagination="pagination" :rowSelection="rowSelection" :dataSource="pageData.data" :columns="columns" :rowKey="record => record.docDefId" :indentSize="0" :loading="loading">
+        <a slot="docCode" @click="showRecordInfo(record)" slot-scope="text, record">{{ text }}</a>
+        <a slot="docName" @click="showRecordInfo(record)" slot-scope="text, record">{{ text }}</a>
+        <span slot="docCatCode" slot-scope="text, record">{{
+          getDocCatName(text)
+          }}</span>
+        <a-tag slot="yesNo" slot-scope="text, record" :color="text === 'Y' ? 'green' : 'orange'">{{ text === "Y" ? "是" : "否" }}</a-tag>
+      </a-table>
+      <a-row :gutter="16">
+        <a-col :span="24" style="margin:10px 0 0 0;text-align:right">
+          <a-button type="" class="editable-add-btn" @click="showModal" style="float:right;margin-right:10px;">任务指派</a-button>
+          <a-button type="primary" class="editable-add-btn" style="float:right;margin-right:10px;">获取任务</a-button>
+        </a-col>
+      </a-row>
+    </a-card>
+    <a-card style="margin-top:24px;">
+      <span href="#" slot="title" style="float:left;">
+        <a-icon type="file-done" /> 我的任务</span>
+      <a href="#" slot="extra">
+        <a-icon :type="iconType" @click="swithTableShow" />
+      </a>
+      <a-table v-show="showTable" :scroll="{ x: 'max-content'}" :bordered="false" :pagination="pagination" :rowSelection="rowSelection" :dataSource="pageData.data" :columns="columns" :rowKey="record => record.docDefId" :indentSize="0" :loading="loading">
+        <a slot="docCode" @click="showRecordInfo(record)" slot-scope="text, record">{{ text }}</a>
+        <a slot="docName" @click="showRecordInfo(record)" slot-scope="text, record">{{ text }}</a>
+        <span slot="docCatCode" slot-scope="text, record">{{
+          getDocCatName(text)
+          }}</span>
+        <a-tag slot="yesNo" slot-scope="text, record" :color="text === 'Y' ? 'green' : 'orange'">{{ text === "Y" ? "是" : "否" }}</a-tag>
+      </a-table>
+      <a-row :gutter="16">
+        <a-col :span="24" style="margin:10px 0 0 0;text-align:right">
+          <a-button type="" class="editable-add-btn" @click="showModal" style="float:right;margin-right:10px;">任务指派</a-button>
+          <a-button type="" class="editable-add-btn" style="float:right;margin-right:10px;">任务释放</a-button>
+          <a-button type="primary" class="editable-add-btn" style="float:right;margin-right:10px;">服务处理</a-button>
+        </a-col>
+      </a-row>
+    </a-card>
+
+    <!--任务指派 start-->
+    <a-modal title="任务指派" class="modal_box" :visible="visible" @ok="handleOk" :confirmLoading="confirmLoading" @cancel="handleCancel">
+      <div>
+
+        <a-divider orientation="left">
+          <a-icon type="solution" /> 基本信息</a-divider>
+        <a-form :form="filterForm" :labelCol="filterFormLayout.labelCol" :wrapperCol="filterFormLayout.wrapperCol">
+          <a-row :gutter="16">
+            <a-col :span="6">
+              <a-form-item label="产品名称">
+                <a-input placeholder="芳芳家庭医生" disabled="disabled" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item label="卡号">
+                <a-input placeholder="" disabled="disabled" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item label="服务名称">
+                <a-input placeholder="" disabled="disabled" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item label="服务商名称">
+                <a-input placeholder="" disabled="disabled" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item label="申请人姓名">
+                <a-input placeholder="" disabled="disabled" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item label="申请日期">
+                <a-input placeholder="" disabled="disabled" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item label="申请方式">
+                <a-input placeholder="" disabled="disabled" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item label="当前状">
+                <a-input placeholder="待预约" disabled="disabled" />
+              </a-form-item>
+            </a-col>
+          </a-row>
+        </a-form>
+        <a-divider orientation="left">
+          <a-icon type="file-search" /> 查询条件</a-divider>
+        <a-form :form="filterForm" :labelCol="filterFormLayout.labelCol" :wrapperCol="filterFormLayout.wrapperCol">
+          <a-row :gutter="16">
+            <a-col :span="6">
+              <a-form-item label="系统账号">
+                <a-input placeholder="" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item label="姓名">
+                <a-input placeholder="" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item label="管理机构">
+                <DicSelect dicType="YES_NO" :allowClear="true" @change="searchHandle" />
+              </a-form-item>
+            </a-col>
+          </a-row>
+          <a-row :gutter="16">
+            <a-col :span="24" style="margin:10px 0 0 0;text-align:right">
+              <a-button type="" class="editable-add-btn" style="float:right;margin-right:10px;">重置</a-button>
+              <a-button type="primary" class="editable-add-btn" style="float:right;margin-right:10px;">查询</a-button>
+            </a-col>
+          </a-row>
+        </a-form>
+
+        <a-card style="margin-top:24px;">
+          <span href="#" slot="title" style="float:left;">
+            <a-icon type="search" /> 查询结果</span>
+          <a href="#" slot="extra">
+            <a-icon :type="iconType" @click="swithTableShow" />
+          </a>
+          <a-table v-show="showTable" :bordered="false" :pagination="pagination" :rowSelection="rowSelection" :dataSource="pageData.data" :columns="columns2" :rowKey="record => record.docDefId" :indentSize="0" :loading="loading">
+            <a slot="docCode" @click="showRecordInfo(record)" slot-scope="text, record">{{ text }}</a>
+            <a slot="docName" @click="showRecordInfo(record)" slot-scope="text, record">{{ text }}</a>
+            <span slot="docCatCode" slot-scope="text, record">{{
+              getDocCatName(text)
+              }}</span>
+            <a-tag slot="yesNo" slot-scope="text, record" :color="text === 'Y' ? 'green' : 'orange'">{{ text === "Y" ? "是" : "否" }}</a-tag>
+          </a-table>
+          <a-row :gutter="16">
+            <a-col :span="24" style="margin:10px 0 0 0;text-align:right">
+              <a-button type="primary" class="editable-add-btn" style="float:right;margin-right:10px;">任务指派</a-button>
+            </a-col>
+          </a-row>
+        </a-card>
+      </div>
+    </a-modal>
+    <WarningForm ref="warningForm" @on-update="loadPageData" />
+    <!--任务指派 end-->
+  </a-card>
+</template>
+<script>
+import api from "@/api/api-serve-apply"
+import DicSelect from "@/components/dic-select"
+import HealthCardSelect from "@/components/health-card-select"
+import WarningForm from "@/pages/HealthCard/components/warning-form"
+import { Promise } from "q"
+import qs from "qs"
+export default {
+	name: "apply-info",
+	components: { DicSelect, HealthCardSelect, WarningForm },
+	data () {
+		return {
+			visible: false,
+			confirmLoading: false,
+			// 查询条件
+			filterFormLayout: {
+				labelCol: { span: 9 },
+				wrapperCol: { span: 15 }
+			},
+			pageData: {
+				dataCount: 0,
+				data: []
+			},
+			filterForm: this.$form.createForm(this),
+			selectedRows: [],
+			loading: false,
+			showTable: true,
+			iconType: "down",
+			columns: [
+				{
+					align: "left",
+					title: "产品名称",
+					dataIndex: "proName",
+					scopedSlots: { customRender: "docCode" }
+				},
+				{
+					align: "left",
+					title: "服务名称",
+					dataIndex: "serName",
+					scopedSlots: { customRender: "docName" }
+				},
+				{
+					align: "left",
+					title: "服务商名称",
+					dataIndex: "providerName"
+				},
+				{
+					align: "left",
+					title: "服务卡号码",
+					dataIndex: "serNumber"
+				},
+				{
+					align: "left",
+					title: "就诊人姓名",
+					dataIndex: "patienName"
+				},
+				{
+					align: "left",
+					title: "就诊人性别",
+					dataIndex: "gender"
+				},
+				{
+					align: "left",
+					title: "就诊人证件类型",
+					dataIndex: "patientType"
+				},
+				{
+					align: "left",
+					title: "失效库存数",
+					dataIndex: "stock"
+				},
+				{
+					align: "left",
+					title: "就诊人证件号码",
+					dataIndex: "patient"
+				},
+				{
+					align: "left",
+					title: "就诊人手机号码",
+					dataIndex: "isValued"
+				},
+				{
+					align: "left",
+					title: "申请日期",
+					dataIndex: "application"
+				},
+				{
+					align: "left",
+					title: "所属队列",
+					dataIndex: "queue"
+				},
+				{
+					align: "left",
+					title: "当前状态",
+					dataIndex: "isValid"
+				},
+				{
+					align: "left",
+					title: "申请方式",
+					dataIndex: "applicationmode"
+				},
+				{
+					align: "left",
+					title: "最后处理时间",
+					dataIndex: "processingTime"
+				},
+				{
+					align: "left",
+					title: "回访次数",
+					dataIndex: "visits"
+				},
+				{
+					align: "left",
+					title: "预约再回访时间",
+					dataIndex: "revisitDays"
+				}
+			],
+			columns2: [
+				{
+					align: "left",
+					title: "序号",
+					dataIndex: "serialNumber",
+					scopedSlots: { customRender: "docCode" }
+				},
+				{
+					align: "left",
+					title: "系统账号",
+					dataIndex: "systemAccount"
+				},
+				{
+					align: "left",
+					title: "工号",
+					dataIndex: "jobNumber"
+				},
+				{
+					align: "left",
+					title: "名称",
+					dataIndex: "name"
+				},
+				{
+					align: "left",
+					title: "所属管理机构",
+					dataIndex: "organization"
+				},
+				{
+					align: "left",
+					title: "联系电话",
+					dataIndex: "telIphone"
+				},
+				{
+					align: "left",
+					title: "电话",
+					dataIndex: "iphone"
+				}
+			],
+			rowSelection: {
+				onChange: (selectedRowKeys, selectedRows) => {
+					this.selectedRows = selectedRows
+				}
+			},
+			pagination: {
+				pageSize: 10,
+				current: 1,
+				total: 0,
+				showTotal: total => `共 ${total} 条数据`,
+				showSizeChanger: true,
+				pageSizeOptions: ["10", "20", "35", "50"],
+				onShowSizeChange: (current, pageSize) =>
+					this.onPageSizeChange(current, pageSize),
+				onChange: (page, pageSize) => this.onPageChange(page, pageSize)
+			}
+		}
+	},
+	mounted () {
+		this.searchHandle()
+	},
+	methods: {
+		showModal () {
+			this.visible = true
+		},
+		handleOk (e) {
+			this.ModalText = 'The modal will be closed after two seconds'
+			this.confirmLoading = true
+			setTimeout(() => {
+				this.visible = false
+				this.confirmLoading = false
+			}, 2000)
+		},
+		handleCancel (e) {
+			console.log('Clicked cancel button')
+			this.visible = false
+		},
+		onChange (date, dateString) {
+			console.log(date, dateString)
+		},
+		searchHandle () {
+			this.$nextTick(() => {
+				this.pagination.current = 1
+				this.loadPageData()
+			})
+		},
+		onPageChange (page, pageSize) {
+			this.pagination.current = page
+			this.loadPageData()
+		},
+		onPageSizeChange (current, size) {
+			this.pagination.pageSize = size
+			this.searchHandle()
+		},
+		loadPageData () {
+			let query = this.filterForm.getFieldsValue()
+			let data = {
+				page: this.pagination.current,
+				limit: this.pagination.pageSize
+			}
+			Object.assign(data, query)
+			this.loading = true
+			api.qureyServereListStr(data).then(res => {
+				console.log(res, "result")
+				this.pageData = res.data || { totalCount: 0, data: [] }
+				this.pageData.data.forEach((item, index) => {
+					item.recordIndex = index + 1
+				})
+				this.pagination.total = this.pageData.totalCount
+			}).finally(() => {
+				this.loading = false
+			})
+		},
+		getDocCatName (code) {
+			return this.$refs.dicCatCode.getName(code)
+		},
+		resetFilterForm () {
+			this.filterForm.resetFields()
+			this.searchHandle()
+		},
+		addRecord () {
+			this.$refs.warningForm.addForm()
+		},
+		showRecordInfo (obj) {
+			this.$refs.warningForm.editForm(obj.docDefId, obj)
+		},
+		swithTableShow () {
+			this.showTable = !this.showTable
+			this.iconType = this.showTable ? "down" : "up"
+		},
+		showWarningInfo () { },
+		sendEmail () { }
+	}
+}
+</script>
+<style>
+.modal_box {
+  width: 1000px !important;
+}
+</style>
+
+
